@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VK API</title>
+</head>
+<body>
+
+<button id="load">Отобразить друзей</button>
+
+
+<p><input id="input" type="search" name="q" placeholder="Поиск по id друга">
+  <input type="button" onclick="Find();" value="Найти"></p>
+
+
+<br>
+<div id="count"></div>
+<ul id="list"></ul>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+
+  document.cookie = "SameSite=None; Secure=true"
+
+  $('#load').on('click', loadFriends);
+
+  function getUrl(method, params){
+    if (!method) throw new Error('Метод не указан.');
+    params = params || {};
+    params['access_token'] = 'vk1.a.vs3U68BrQywMO9OkwhFNxqB3KLUw_ifr_B0pyu6kYaOeLNtEWoawzAM7NnxWVXd22F3fP8TOGBC3K5OzXSofrs2RVr9F2bJ-Oj7T7DyxSMddcckS-kBX2A2t94BH6v6Oyv8YMixKDvJwEklXoJ_Tli2g0hN1IFuRpCsN2a-0v0RBYusP5aMIgfn3bJ9dIedL'
+    return 'https://api.vk.com/method/friends.search?count=1000&access_token=vk1.a.vs3U68BrQywMO9OkwhFNxqB3KLUw_ifr_B0pyu6kYaOeLNtEWoawzAM7NnxWVXd22F3fP8TOGBC3K5OzXSofrs2RVr9F2bJ-Oj7T7DyxSMddcckS-kBX2A2t94BH6v6Oyv8YMixKDvJwEklXoJ_Tli2g0hN1IFuRpCsN2a-0v0RBYusP5aMIgfn3bJ9dIedL&v=5.81' /*+ method + '?' + $.param(params);*/
+  }
+
+  function sendRequest(method, params, func) {
+    $.ajax({
+      url: getUrl(method, params),
+      method: 'GET',
+      dataType: 'JSONP',
+      success: func
+    });
+  }
+
+  function loadFriends() {
+    sendRequest('friends.search', {count: 1000, fields: 'photo_100'}, function (data) {
+      console.log(data.response);
+      View(data.response);
+      Find();
+    });
+  }
+
+  function View(data) {
+    let count = document.getElementById("count");
+    count.innerHTML = `<div>Ваше количество друзей: ${data.count} </div>`;
+    let list = document.getElementById("list");
+    let result;
+    for (let item of data.items) {
+      result += `<li>
+				<b><div class = "findid">${item.id}</div></b>
+				<i class="findname">${item.first_name}</i><br>
+				<i class="findlastname">${item.last_name}</i>
+			</li>`;
+    }
+    list.innerHTML = result;
+  }
+
+  function Find(){
+    let fname = document.getElementsByClassName("findname");
+    let lname = document.getElementsByClassName("findlastname");
+    let text = document.getElementById("input");
+    let list = document.getElementsByClassName("findid");
+    for (let i = 0; i < list.length; i++) {
+      if(list[i].innerHTML === `${text.value}`  ) {
+        let x = "";
+        x += list[i].innerHTML + " " + fname[i].innerHTML + " " + lname[i].innerHTML;
+
+        alert(x);
+      }
+    }
+    console.log(list);
+  }
+</script>
+</body>
+</html>
